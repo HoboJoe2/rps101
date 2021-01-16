@@ -30,6 +30,7 @@ def clear_screen():
 
 
 def load_json_file():
+    """loads the json file"""
     dirname = os.path.dirname(__file__)
     path = os.path.join(dirname, "rps101_data.json")
     with open(path) as f:
@@ -38,6 +39,9 @@ def load_json_file():
 
 
 def get_weapon_objects(json_load):
+    """creates weapon objects by iterating over the json load
+    and making an object of each dictionary
+    """
     weapon_object_list = []
     for weapon_dict in json_load:
         weapon = Weapon(**weapon_dict)
@@ -46,6 +50,7 @@ def get_weapon_objects(json_load):
 
 
 def display_available_weapons(weapon_object_list):
+    """Prints a list of weapons, 10 per line, seperated by a |"""
     weapons_on_line = 0
     for weapon in weapon_object_list:
         if weapons_on_line < 10:
@@ -57,6 +62,9 @@ def display_available_weapons(weapon_object_list):
 
 
 def get_player_weapon(weapon_object_list, player):
+    """Gets input from the user and matches that input to a weapon object,
+    also handles exiting the program
+    """
 
     player_input = input(f"Player {player.number}'s move >> ").lower()
 
@@ -76,6 +84,10 @@ def get_player_weapon(weapon_object_list, player):
 
 
 def get_winner(player_one, player_two):
+    """Searches through each player's weapon's comparison dictionary to match
+    the other players weapon id to their weapon id, then prints the comparison.
+    Also updates player scores and returns the winning player.
+    """
 
     if player_one.weapon is None or player_two.weapon is None:
         print("Someone entered an invalid input... the scores stay the same.")
@@ -97,6 +109,9 @@ def get_winner(player_one, player_two):
 
 
 def game_loop(weapon_object_list, player_one, player_two):
+    """Gets new weapons for each player, prints the winner and the scores then
+    loops again
+    """
     print()
     print()
 
