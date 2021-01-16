@@ -1,30 +1,35 @@
-import requests
-from bs4 import BeautifulSoup
 import os
 import json
-from types import SimpleNamespace
+import random
+import time
 from Weapon import Weapon
+from Player import Player
 
 
-def clear_screen(): 
-  
-    # for windows 
-    if os.name == 'nt': 
-        _ = os.system('cls') 
-  
-    # for mac and linux (here, os.name is 'posix') 
-    else: 
-        _ = os.system('clear') 
-    
+welcome_text = """
+Hi, welcome to rps101.
+Possible moves:
+"""
+welcome_text_cont = """
+
+You can also type "random" for a random move or "exit" to exit the game.
+"""
+
+
+def clear_screen():
+
+    # for windows
+    if os.name == 'nt':
+        _ = os.system('cls')
+
+    # for mac and linux (here, os.name is 'posix')
+    else:
+        _ = os.system('clear')
+
     return
 
 
-# customDecoder function 
-def custom_decoder(dct): 
-    return SimpleNamespace(**dct) 
-
-
-def read_json_file():
+def load_json_file():
     dirname = os.path.dirname(__file__)
     path = os.path.join(dirname, "rps101_data.json")
     with open(path) as f:
@@ -32,13 +37,98 @@ def read_json_file():
     return json_load
 
 
-def process_json(json_load):
+def get_weapon_objects(json_load):
+    weapon_object_list = []
     for weapon_dict in json_load:
         weapon = Weapon(**weapon_dict)
-        print(weapon.title)
+        weapon_object_list.append(weapon)
+    return weapon_object_list
+
+
+def display_available_weapons(weapon_object_list):
+    weapons_on_line = 0
+    for weapon in weapon_object_list:
+        if weapons_on_line < 10:
+            print(weapon.title, end=" | ")
+            weapons_on_line += 1
+        else:
+            print(weapon.title)
+            weapons_on_line = 0
+
+
+def get_player_weapon(weapon_object_list, player):
+
+    player_input = input(f"Player {player.number}'s move >> ").lower()
+
+    if player_input == "exit":
+        print("Bye!")
+        time.sleep(0.5)
+        raise SystemExit("Exiting...")
+
+    elif player_input == "random":
+        player.weapon = random.choice(weapon_object_list)
+
+    else:
+        for weapon in weapon_object_list:
+            if weapon.title == player_input:
+                player.weapon = weapon
+    return
+
+
+def get_winner(player_one, player_two):
+
+    if player_one.weapon is None or player_two.weapon is None:
+        print("Someone entered an invalid input... the scores stay the same.")
+        return None
+
+    for comparison in player_one.weapon.compares:
+        if int(comparison["other_gesture_id"]) == player_two.weapon.id:
+            print(player_one.weapon.title, comparison["verb"][0],
+                  player_two.weapon.title)
+            player_one.wins += 1
+            return player_one
+
+    for comparison in player_two.weapon.compares:
+        if int(comparison["other_gesture_id"]) == player_one.weapon.id:
+            print(player_two.weapon.title, comparison["verb"][0],
+                  player_one.weapon.title)
+            player_two.wins += 1
+            return player_two
+
+
+def game_loop(weapon_object_list, player_one, player_two):
+    print()
+    print()
+
+    get_player_weapon(weapon_object_list, player_one)
+    get_player_weapon(weapon_object_list, player_two)
+    print()
+
+    winner = get_winner(player_one, player_two)
+    print(f"Player {winner.number} wins!")
+    print()
+
+    print("Player 1's score:", player_one.wins)
+    print("Player 2's score:", player_two.wins)
+    print()
+
+    input("-- Press enter to play again --")
+    clear_screen()
+
+    print("Possible moves:")
+    print()
+    display_available_weapons(weapon_object_list)
+
     return
 
 
 if __name__ == "__main__":
-    json_load = read_json_file()
-    process_json(json_load)
+    json_load = load_json_file()
+    weapon_object_list = get_weapon_objects(json_load)
+    print(welcome_text)
+    display_available_weapons(weapon_object_list)
+    print(welcome_text_cont)
+    p1 = Player(1)
+    p2 = Player(2)
+    while True:
+        game_loop(weapon_object_list, p1, p2)
