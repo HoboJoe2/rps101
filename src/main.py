@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import random
 import time
@@ -31,8 +32,16 @@ def clear_screen():
 
 def load_json_file():
     """loads the json file"""
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, "rps101_data.json")
+
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the PyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS'.
+        application_path = sys._MEIPASS
+    else:
+        application_path = os.path.dirname(os.path.abspath(__file__))
+
+    path = os.path.join(application_path, "rps101_data.json")
     with open(path) as f:
         json_load = json.load(f)
     return json_load
