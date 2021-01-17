@@ -30,22 +30,10 @@ def clear_screen():
     return
 
 
-def get_application_path():
-    """Gets the path of the python file"""
-    if getattr(sys, 'frozen', False):
-        # If the application is run as a bundle, the PyInstaller bootloader
-        # extends the sys module by a flag frozen=True and sets the app
-        # path into variable _MEIPASS'.
-        application_path = sys._MEIPASS
-    else:
-        application_path = os.path.dirname(os.path.abspath(__file__))
-    return application_path
-
-
 def load_json_file():
     """loads the json file"""
 
-    application_path = get_application_path()
+    application_path = os.path.dirname(os.path.abspath(__file__))
 
     path = os.path.join(application_path, "rps101_data.json")
     with open(path) as f:
@@ -125,8 +113,7 @@ def get_winner(player_one, player_two):
             winner = player_two
 
     if player_one.weapon == player_two.weapon:
-        print("It's a tie! The scores stay the same.")
-        return None
+        return "tie"
 
     player_one.weapon = None
     player_two.weapon = None
@@ -146,10 +133,12 @@ def game_loop(weapon_object_list, player_one, player_two):
     print()
 
     winner = get_winner(player_one, player_two)
-    if winner is not None:
+    if winner == "tie":
+        print("It's a tie! The scores stay the same.")
+    elif winner is not None:
         print(f"Player {winner.number} wins!")
     else:
-        print("Someone entered an invalid input, the scores stay the same")
+        print("Someone entered an invalid input, the scores stay the same.")
     print()
 
     print("Player 1's score:", player_one.wins)
