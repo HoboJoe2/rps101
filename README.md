@@ -2,7 +2,7 @@
 
 This is a command line game of RPS101.
 
-Thanks to: 
+Thanks to:
 http://www.umop.com/rps101.htm for creating the game ((c) David C. Lovelace 2009)
 https://github.com/Paulpanther/rps101parser (the json generated from that project is used in this project ((c) 2020 Paul Methfessel)
 
