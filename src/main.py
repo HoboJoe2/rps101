@@ -30,9 +30,8 @@ def clear_screen():
     return
 
 
-def load_json_file():
-    """loads the json file"""
-
+def get_application_path():
+    """Gets the path of the python file"""
     if getattr(sys, 'frozen', False):
         # If the application is run as a bundle, the PyInstaller bootloader
         # extends the sys module by a flag frozen=True and sets the app
@@ -40,6 +39,13 @@ def load_json_file():
         application_path = sys._MEIPASS
     else:
         application_path = os.path.dirname(os.path.abspath(__file__))
+    return application_path
+
+
+def load_json_file():
+    """loads the json file"""
+
+    application_path = get_application_path()
 
     path = os.path.join(application_path, "rps101_data.json")
     with open(path) as f:
@@ -95,26 +101,37 @@ def get_player_weapon(weapon_object_list, player):
 def get_winner(player_one, player_two):
     """Searches through each player's weapon's comparison dictionary to match
     the other players weapon id to their weapon id, then prints the comparison.
-    Also updates player scores and returns the winning player.
+    Also updates player scores, clears player weapons and returns the winning
+    player.
     """
 
     if player_one.weapon is None or player_two.weapon is None:
-        print("Someone entered an invalid input... the scores stay the same.")
         return None
+
+    winner = None
 
     for comparison in player_one.weapon.compares:
         if int(comparison["other_gesture_id"]) == player_two.weapon.id:
             print(player_one.weapon.title, comparison["verb"][0],
                   player_two.weapon.title)
             player_one.wins += 1
-            return player_one
+            winner = player_one
 
     for comparison in player_two.weapon.compares:
         if int(comparison["other_gesture_id"]) == player_one.weapon.id:
             print(player_two.weapon.title, comparison["verb"][0],
                   player_one.weapon.title)
             player_two.wins += 1
-            return player_two
+            winner = player_two
+
+    if player_one.weapon == player_two.weapon:
+        print("It's a tie! The scores stay the same.")
+        return None
+
+    player_one.weapon = None
+    player_two.weapon = None
+
+    return winner
 
 
 def game_loop(weapon_object_list, player_one, player_two):
@@ -129,7 +146,10 @@ def game_loop(weapon_object_list, player_one, player_two):
     print()
 
     winner = get_winner(player_one, player_two)
-    print(f"Player {winner.number} wins!")
+    if winner is not None:
+        print(f"Player {winner.number} wins!")
+    else:
+        print("Someone entered an invalid input, the scores stay the same")
     print()
 
     print("Player 1's score:", player_one.wins)
