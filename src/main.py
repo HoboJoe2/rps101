@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import random
 import time
@@ -11,6 +10,7 @@ welcome_text = """
 Hi, welcome to rps101.
 Possible moves:
 """
+
 welcome_text_cont = """
 
 You can also type "random" for a random move or "exit" to exit the game.
@@ -18,42 +18,41 @@ You can also type "random" for a random move or "exit" to exit the game.
 
 
 def clear_screen():
-
     # for windows
     if os.name == 'nt':
         _ = os.system('cls')
-
     # for mac and linux (here, os.name is 'posix')
     else:
         _ = os.system('clear')
-
     return
 
 
 def load_json_file():
     """loads the json file"""
 
-    application_path = os.path.dirname(os.path.abspath(__file__))
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    json_filepath = os.path.join(dirname, "rps101_data.json")
 
-    path = os.path.join(application_path, "rps101_data.json")
-    with open(path) as f:
+    with open(json_filepath) as f:
         json_load = json.load(f)
     return json_load
 
 
 def get_weapon_objects(json_load):
     """creates weapon objects by iterating over the json load
-    and making an object of each dictionary
+    and making an object of each dictionary, then returns
+    a list of all the objects
     """
     weapon_object_list = []
     for weapon_dict in json_load:
+        # weapon_dict is a dictionary which has data for one weapon
         weapon = Weapon(**weapon_dict)
         weapon_object_list.append(weapon)
     return weapon_object_list
 
 
 def display_available_weapons(weapon_object_list):
-    """Prints a list of weapons, 10 per line, seperated by a |"""
+    """Prints the list of weapons, 10 per line, seperated by a |"""
     weapons_on_line = 0
     for weapon in weapon_object_list:
         if weapons_on_line < 10:
@@ -68,13 +67,12 @@ def get_player_weapon(weapon_object_list, player):
     """Gets input from the user and matches that input to a weapon object,
     also handles exiting the program
     """
-
     player_input = input(f"Player {player.number}'s move >> ").lower()
 
     if player_input == "exit":
         print("Bye!")
         time.sleep(0.5)
-        raise SystemExit("Exiting...")
+        raise SystemExit("")
 
     elif player_input == "random":
         player.weapon = random.choice(weapon_object_list)
@@ -96,6 +94,9 @@ def get_winner(player_one, player_two):
     if player_one.weapon is None or player_two.weapon is None:
         return None
 
+    if player_one.weapon == player_two.weapon:
+        return "tie"
+
     winner = None
 
     for comparison in player_one.weapon.compares:
@@ -111,9 +112,6 @@ def get_winner(player_one, player_two):
                   player_one.weapon.title)
             player_two.wins += 1
             winner = player_two
-
-    if player_one.weapon == player_two.weapon:
-        return "tie"
 
     player_one.weapon = None
     player_two.weapon = None
@@ -156,12 +154,18 @@ def game_loop(weapon_object_list, player_one, player_two):
 
 
 if __name__ == "__main__":
+    """All of this code runs before the game loop function is called"""
     json_load = load_json_file()
     weapon_object_list = get_weapon_objects(json_load)
+
     print(welcome_text)
     display_available_weapons(weapon_object_list)
     print(welcome_text_cont)
+
     p1 = Player(1)
     p2 = Player(2)
+
     while True:
+        # game loop function handles exiting the program,
+        # so it is ok to run infinite loop
         game_loop(weapon_object_list, p1, p2)
