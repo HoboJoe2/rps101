@@ -1,6 +1,7 @@
 # rps101
 
 This is a command line game of RPS101.
+Go into the src folder and run on RPS101.exe to play.
 
 Thanks to:
 http://www.umop.com/rps101.htm for creating the game ((c) David C. Lovelace 2009)
