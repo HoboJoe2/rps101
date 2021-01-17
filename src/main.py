@@ -11,8 +11,7 @@ Hi, welcome to rps101.
 Possible moves:
 """
 
-welcome_text_cont = """
-
+exit_and_random_notice = """
 You can also type "random" for a random move or "exit" to exit the game.
 """
 
@@ -149,6 +148,8 @@ def game_loop(weapon_object_list, player_one, player_two):
     print("Possible moves:")
     print()
     display_available_weapons(weapon_object_list)
+    print()
+    print(exit_and_random_notice)
 
     return
 
@@ -160,7 +161,8 @@ if __name__ == "__main__":
 
     print(welcome_text)
     display_available_weapons(weapon_object_list)
-    print(welcome_text_cont)
+    print()
+    print(exit_and_random_notice)
 
     p1 = Player(1)
     p2 = Player(2)
